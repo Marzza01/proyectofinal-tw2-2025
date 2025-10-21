@@ -13,7 +13,15 @@ return new class extends Migration
     {
         Schema::create('calificaciones', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            //$table->timestamp();
+            $table->double('calificaciones', 8,2);
+            $table->unsignedBigInteger('materias_x_usuarios_id');
+
+            $table->foreig('materias_x_usuarios_id')
+            ->references('id')
+            ->on('materias_x_usuarios')
+            ->onUpdate('cascade')
+            ->onDelete('cascade');
         });
     }
 

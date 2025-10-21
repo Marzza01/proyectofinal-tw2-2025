@@ -21,9 +21,9 @@ class AccesoController extends Controller
             'email.required' => 'El correo electronico es obligatorio',
             'email.email' => 'Debe de ingresar un correo electronico valido',
             'email.max' => 'El correo electronico no puede tener mas de 255 caracteres',
-            'password.required' => 'La contrasena es obligatoria',
+            'password.required' => 'La contraseña es obligatoria',
             'password.string' => 'La contraseña debe ser una cadena de texto',
-            'password.min' => 'La contrasena debe tener al menos 6 caracteres',
+            'password.min' => 'La contraseña debe tener al menos 6 caracteres',
         ]);
 
         if( $validator->fails() ){
