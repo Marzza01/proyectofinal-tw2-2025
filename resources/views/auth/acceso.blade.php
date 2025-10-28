@@ -1,16 +1,15 @@
 @extends('layouts.baseacceso')
 
-@section('titulo' , 'Iniciar Sesion')
+@section('titulo', 'Iniciar Sesion')
 
 @push('CSS')
 <style>
     .login-container {
         min-height: 100vh;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
     }
     .login-card {
-        backdrop-filter: blur(1opx);
+        backdrop-filter: blur(10px);
         background: rgba(255, 255, 255, 0.95);
         border-radius: 15px;
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
@@ -29,10 +28,10 @@
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="row g-0 login-card">
-                    <div class="col-md-6 d-flex align-items-center justify-content-center brand-section text-black p-5">
+                    <div class="col-md-6 d-flex align-items-center justify-content-center brand-section text-white p-5">
                         <div class="text-center">
                             <h1 class="display-4 mb-4">
-                                <i class="bi bi-motarboard-fill"></i>
+                                <i class="bi bi-mortarboard-fill"></i>
                             </h1>
                             <h2 class="mb-3">Sistema de Calificaciones</h2>
                             <p class="lead">Gestiona las calificaciones de manera eficiente y segura</p>
@@ -40,43 +39,48 @@
                     </div>
                     <div class="col-md-6 p-5">
                         <div class="text-center mb-4">
-                            <h3 class="fw-bold text-primary">Iniciar Sesion</h3>
+                            <h3 class="fw-bold text-primary">Iniciar Sesión</h3>
                             <p class="text-muted">Ingresa tus credenciales para acceder</p>
                         </div>
-                        <form id="frAcceso" method="post" action="{{ route('login') }}">
+                        <form id="frmAcceso" method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="mb-3">
                                 <label for="email" class="form-label fw-semibold">
-                                    <i class="bi bi-envelope text-primary"></i>Correo Electronico
+                                    <i class="bi bi-envelope text-primary"></i> Correo Electrónico
                                 </label>
                                 <input type="email"
-                                class="form-control form-control-lg @error('email') is-invalid @enderror"
-                                id="email"
-                                name="email"
-                                value="{{ old('email') }}"
-                                placeholder="ejemplo@correo.com"
-                                required>
-                            @error('email')
-                                 <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror     
+                                    class="form-control form-control-lg @error('email') is-invalid @enderror"
+                                    id="email"
+                                    name="email"
+                                    value="{{ old('email') }}"
+                                    placeholder="ejemplo@correo.com"
+                                    required>
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="mb-4">
                                 <label for="password" class="form-label fw-semibold">
-                                    <i class="bi bi-lock text-primary"></i>Contraseña
+                                    <i class="bi bi-lock text-primary"></i> Contraseña
                                 </label>
-                                <input type="password"
-                                class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                id="password"
-                                name="password"
-                                placeholder="Ingresa tu contraseña"
-                                required>
-                            @error('password')
-                                 <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror     
+                                <div class="input-group">
+                                    <input type="password"
+                                        class="form-control form-control-lg @error('password') is-invalid @enderror"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Ingresa tu contraseña"
+                                        required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg" id="btnAcceso">
-                                    <i class="bi bi-box-arrow-in-right"></i>Iniciar Sesion
+                                    <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
                                 </button>
                             </div>
                         </form>
@@ -100,14 +104,28 @@
         if( cargando ){
             btn.html('<i class="bi bi-hourglass-split"></i> Verificando...').prop("disabled", true);
         }
-        else {
-            btn.html('<i class="bi bi-box-arrow-in-right"></i>Iniciar Sesion').prop("disabled", false);
+        else{
+            btn.html('<i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión').prop("disabled", false);
         }
     }
 </script>
 @endpush
 
 @push('JSOR')
+// Toggle para mostrar/ocultar contraseña
+$('#togglePassword').on("click", function(){
+    const passwordField = $("#password");
+    const passwordFieldType = passwordField.attr("type");
+    const toggleIcon = $(this).find('i');
+    if( passwordFieldType === "password" ){
+        passwordField.attr("type", "text");
+        toggleIcon.removeClass("bi-eye").addClass("bi-eye-slash");
+    }
+    else{
+        passwordField.attr("type", "password");
+        toggleIcon.removeClass("bi-eye-slash").addClass("bi-eye");
+    }
+});
 $("#frmAcceso").on("submit", function(e){
     e.preventDefault();
     cambiarEstadoBoton(true);
@@ -115,14 +133,14 @@ $("#frmAcceso").on("submit", function(e){
         url: $(this).attr("action"),
         method: "POST",
         data: $(this).serialize(),
-        succes: function(response){
+        success: function(response){
             Swal.fire({
-                icon: "succes",
-                title: "Bienvenido!",
+                icon: "success",
+                title: "¡Bienvenido!",
                 text: "Acceso concedido correctamente",
                 timer: 1500,
                 showConfirmButton: false,
-                timeProgressBar: true
+                timerProgressBar: true
             }).then(() => {
                 window.location.href = response.redirect || "/dashboard";
             });
@@ -133,20 +151,20 @@ $("#frmAcceso").on("submit", function(e){
                 location.reload();
             }
             else if( xhr.status == 401 ){
-                    Swal.fire({
-                        icon: "error",
-                        title: "Acceso Denegado",
-                        text: "Las credenciales ingresadas son incorrectas",
-                        confirButtonText: "Intentar de nuevo"
-                    });
+                Swal.fire({
+                    icon: "error",
+                    title: "Acceso denegado",
+                    text: "Las credenciales ingresadas son incorrectas",
+                    confirmButtonText: "Intentar de nuevo"
+                });
             }
             else{
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error del sistema",
-                        text: "Ocurrio un problema, intenta mas tarde",
-                        confirButtonText: "Aceptar"
-                    });
+                Swal.fire({
+                    icon: "error",
+                    title: "Error del sistema",
+                    text: "Ocurrió un problema, intenta más tarde",
+                    confirmButtonText: "Aceptar"
+                });
             }
         }
     });

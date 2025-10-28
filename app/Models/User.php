@@ -18,10 +18,13 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'tipos_id',
+        'username',
         'email',
         'password',
     ];
+
+    public $timestamps = false;
 
     /**
      * The attributes that should be hidden for serialization.
@@ -42,4 +45,19 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    // Relación: Un usuario pertenece a un tipo
+    public function tipo(){
+        return $this->belongsTo(Tipo::class, 'tipos_id');
+    }
+
+    // Relación: Un usuario puede tener muchas relaciones materias_x_usuarios
+    public function materiasXUsuarios(){
+        return $this->hasMany(MateriasXUsuario::class, 'users_id');
+    }
+
+    // Relación: Un usuario puede estar inscrito en muchas materias (many-to-many)
+    public function materias(){
+        return $this->belongsToMany(Materia::class, 'materias_x_usuarios', 'users_id', 'materias_id');
+    }
 }
