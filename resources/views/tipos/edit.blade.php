@@ -123,11 +123,41 @@
             btn.html('<i class="bi bi-check-circle me-1"></i> Actualizar Usuario').prop("disabled", false);
         }
     }
+    function actualizarPreview(tipo){
+        const preview = $("#previewTipo");
+        const badgePreview = $("#badgePreview");
+        
+        if( tipo.trim() ){
+            // Determinar color del badge según el tipo
+            let colorClass = "bg-secondary";
+            if(tipo.toLowerCase() === "admin") colorClass = "bg-danger";
+            else if(tipo.toLowerCase() === "profesor") colorClass = "bg-success";
+            else if(tipo.toLowerCase() === "estudiante") colorClass = "bg-primary";
+            else if(tipo.toLowerCase() === "coordinador") colorClass = "bg-warning";
+            
+            const badge = `<span class="badge ${colorClass} fs-6">
+                <i class="bi bi-person-badge me-1"></i>${tipo}
+            </span>`;
+            
+            badgePreview.html(badge);
+        }
+        else{
+            badgePreview.html('<span class="text-muted">Ingresa un tipo para ver la vista previa</span>');
+        }
+    }
 </script>
 @endpush
 
 @push('JSOR')
-    // Manejo del formulario
+    actualizarPreview( $("#tipo").val() );
+    $("#tipo").on("input", function(){
+        actualizarPreview( $(this).val() );
+    });
+    $(".ejemplo-tipo").on("click", function(){
+        const tipo = $(this).data("tipo");
+        $("#tipo").val(tipo);
+        actualizarPreview( tipo );
+    });
     $("#formEditarTipo").on("submit", function(e){
         e.preventDefault();
         cambiarEstadoBoton(true);
