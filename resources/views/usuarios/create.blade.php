@@ -16,7 +16,7 @@
                     <p class="text-muted mb-0">Completa la información para crear un usuario</p>
                 </div>
                 <div>
-                    <a href="{{ route('tipos.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left me-1"></i>
                         Volver
                     </a>
@@ -30,11 +30,11 @@
                         <div class="card-header bg-success text-white">
                             <h5 class="mb-0">
                                 <i class="bi bi-person-fill me-2"></i>
-                                Información del Tipo
+                                Información del Usuario
                             </h5>
                         </div>
                         <div class="card-body">
-                            <form id="formCrearUsuario" method="POST" action="{{ route('tipos.store') }}">
+                            <form id="formCrearUsuario" method="POST" action="{{ route('usuarios.store') }}">
                                 @csrf
                                 
                                 <div class="row">
@@ -217,7 +217,7 @@
             success: function(response){
                 Swal.fire({
                     icon: "success",
-                    title: "¡Tipo creado!",
+                    title: "¡Usuario creado!",
                     text: "El usuario se ha creado correctamente",
                     timer: 1500,
                     showConfirmButton: false,

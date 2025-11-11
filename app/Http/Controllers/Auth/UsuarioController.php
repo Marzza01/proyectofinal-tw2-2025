@@ -5,19 +5,19 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use Illumiinate\Support\Facades\Auth;
-use Illumiinate\Support\Facades\Hash;
-use Illumiinate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;  
+use Illuminate\Support\Facades\Validator;
 
 use App\Models\User;
 use App\Models\Tipo;
 
-class UsuarioController extends Controllers
+class UsuarioController extends Controller
 {
     public function index(){
         $usuarioActual = Auth::user();
-        $tipoUsuario = $usuarioActual->tipo;
-        // Consulta base con relacion tipo
+        $tipoUsuario = $usuarioActual->tipo->tipo;
+        // Consulta base con relación tipo
         $query = User::with('tipo');
         if( $tipoUsuario === 'admin' ){
             // Admin ve todos los usuarios
@@ -25,13 +25,13 @@ class UsuarioController extends Controllers
         }
         elseif( $tipoUsuario === 'profesor' ){
             // Profesor solo ve estudiantes
-            $usuaios = $query->whereHas('tipo', function($q) {
+            $usuarios = $query->whereHas('tipo', function($q) {
                 $q->where('tipo', 'estudiante');
             })->get();
         }
         else{
-            // Estudiantes no deberian acceder aqui
-            abort(403, 'No tienes permisos para acceder a esta seccion.');
+            // Estudiantes no deberían acceder aquí
+            abort(403, 'No tienes permisos para acceder a esta sección.');
         }
         return view('usuarios.index', compact('usuarios'));
     }
@@ -43,23 +43,23 @@ class UsuarioController extends Controllers
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|email|min:6|confirmed',
-            'tipos_id' => 'required|exists:tipos,id',
+            'password' => 'required|string|min:6|confirmed',
+            'tipos_id' => 'required|exists:tipos,id'
         ],
         [
-            'username.required' => 'El nombre username es obligatodio.',
+            'username.required' => 'El username es obligatorio.',
             'username.unique' => 'Este username ya está en uso.',
             'email.required' => 'El email es obligatorio.',
-            'email.email' => 'Debe de ser email válido.',
+            'email.email' => 'Debe ser un email válido.',
             'email.unique' => 'Este email ya está registrado.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'tipos_id.required' => 'Debe seleccionar un tipo de usuario.',
-            'tipos_id.exists' => 'El tipo de usuario seleccionado no es válido.',
+            'tipos_id.exists' => 'El tipo de usuario seleccionado no es válido.'
         ]);
-        if( $validator_>fails() ){
-            if( $request_>ajax() ){
+        if( $validator->fails() ){
+            if( $request->ajax() ){
                 return response()->json([
                     'success' => false,
                     'errors' => $validator->errors()
@@ -69,7 +69,7 @@ class UsuarioController extends Controllers
             ->back()
             ->withErrors($validator)
             ->withInput();
-        }
+        }  
         try{
             User::create([
                 'username' => $request->username,
@@ -77,20 +77,20 @@ class UsuarioController extends Controllers
                 'password' => Hash::make($request->password),
                 'tipos_id' => $request->tipos_id
             ]);
-            if( $requeest->ajax() ){
+            if( $request->ajax() ){
                 return response()->json([
-                    'succes' => true,
+                    'success' => true,
                     'message' => 'Usuario creado correctamente'
                 ]);
             }
             return redirect()
             ->route('usuarios.index')
-            ->with('succes', 'Usuario creado correctamente');
+            ->with('success', 'Usuario creado correctamente');
         }
-        catch( \Exeption $e){
-            if ($request->ajax()){
-                return respinse()->json([
-                    'succes' => false,
+        catch( \Exception $e ){
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
                     'message' => 'Error al crear el usuario'
                 ], 500);
             }
@@ -107,33 +107,33 @@ class UsuarioController extends Controllers
     }
     public function update(Request $request, $id){
         $usuario = User::findOrFail($id);
-        // Reglas de validacion
+        // Reglas de validación
         $rules = [
-            'username' => 'rquired|string|max:255|unique:users,username,' . $id,
-            'email' => 'rquired|string|email|max:255|unique:users,email,' . $id,
+            'username' => 'required|string|max:255|unique:users,username,' . $id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
             'tipos_id' => 'required|exists:tipos,id'
         ];
         // Si se va a cambiar la contraseña
         if( $request->filled('password') ){
-            $rules['password'] = 'string|min:6|confirmed';
+            $rules['password'] = 'required|string|min:6|confirmed';
         }
-        $message = [
+        $messages = [
             'username.required' => 'El username es obligatorio.',
-            'username.unique' => 'El username ya está en uso.',
+            'username.unique' => 'Este username ya está en uso.',
             'email.required' => 'El email es obligatorio.',
             'email.email' => 'Debe ser un email válido.',
-            'email.unique' => 'Este email ya esta registrado.',
+            'email.unique' => 'Este email ya está registrado.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'tipos_id.required' => 'Debe seleccionar un tipo de usuario.',
-            'tipos_id.exists' => 'El tipo de usuario seleccionado no es válido.',
+            'tipos_id.exists' => 'El tipo de usuario seleccionado no es válido.'
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
         if( $validator->fails() ){
             if( $request->ajax() ){
                 return response()->json([
-                    'succes' => false,
+                    'success' => false,
                     'errors' => $validator->errors()
                 ], 422);
             }
@@ -146,29 +146,29 @@ class UsuarioController extends Controllers
             $data = [
                 'username' => $request->username,
                 'email' => $request->email,
-                'tipos_id' => $request->tipos_id,
+                'tipos_id' => $request->tipos_id
             ];
-
-            // Solo actualizar contraseña si es proporcionó
+              
+            // Solo actualizar contraseña si se proporcionó
             if( $request->filled('password') ){
                 $data['password'] = Hash::make($request->password);
             }
             $usuario->update($data);
-            if($request->ajax()) {
+            if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Usuario actualizado corrrectamente'
+                    'message' => 'Usuario actualizado correctamente'
                 ]);
             }
             return redirect()
             ->route('usuarios.index')
-            ->with('seccess', 'Usuario actualizado correctamente');
+            ->with('success', 'Usuario actualizado correctamente');
         }
         catch (\Exception $e) {
             Log::error('Error al actualizar usuario: ' . $e->getMessage());
             if ($request->ajax()) {
                 return response()->json([
-                    'succes' => false,
+                    'success' => false,
                     'message' => 'Error al actualizar el usuario'
                 ], 500);
             }
@@ -176,20 +176,20 @@ class UsuarioController extends Controllers
             ->back()
             ->with('error', 'Error al actualizar el usuario')
             ->withInput();
-        }
+        }  
     }
     public function destroy($id){
         try{
             $usuario = User::findOrFail($id);
             $usuario->delete();
-
+              
             return redirect()
-            ->route('usuario.index')
-            ->with('secces', 'Usuario eliminado correctamente');
+            ->route('usuarios.index')
+            ->with('success', 'Usuario eliminado correctamente');  
         }
         catch( \Exception $e ){
             return redirect()
-            ->route('usuarios.idex')
+            ->route('usuarios.index')
             ->with('error', 'Error al eliminar el usuario');
         }
     }
